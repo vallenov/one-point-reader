@@ -16,13 +16,13 @@ class Book:
 
     def open_file_book(self):
         with open(self.full_name, 'r') as book:
-            return book.read()
+            return book.read().strip().split()
 
 
 class MainWindow(tk.Tk):
     def __init__(self):
         super(). __init__()
-        self._HEIGHT = 200
+        self._HEIGHT = 100
         self._WIDTH = 500
         self.title('One-point Reader') #название окна
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
@@ -46,12 +46,13 @@ class MainWindow(tk.Tk):
         self._spd = tk.Entry(self, width=10)
         self._spd.grid(row=line, column=5, columnspan=2)
         self._list_of_widgets.append(self._spd)
+        self._spd.insert(tk.INSERT, str(100 - (self._speed // (self._min_speed / 100))) + '%')
         line += 1
         self._prev_btn = tk.Button(self, text='<-', command=self._jump_left)
         self._prev_btn.grid(row=line, column=1)
         self._list_of_widgets.append(self._prev_btn)
 
-        self._play_btn = tk.Button(self, text='>', command=self._start)
+        self._play_btn = tk.Button(self, text='▶', command=self._start)
         self._play_btn.grid(row=line, column=2)
         self._list_of_widgets.append(self._play_btn)
 
@@ -72,15 +73,13 @@ class MainWindow(tk.Tk):
         self._list_of_widgets.append(self._next_btn)
 
     def _reading(self):
-        lst = self.book.text.strip().split()
+        #lst = self.book.text.strip().split()
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
-            if self.book.last_point >= len(lst):
+            if self.book.last_point >= len(self.book.text):
                 return
             self._ent.delete(0, 'end')
-            self._spd.delete(0, 'end')
-            self._spd.insert(tk.INSERT, str(100 - (self._speed // (self._min_speed / 100))) + '%')
-            self._ent.insert(tk.INSERT, lst[self.book.last_point].center(60))
+            self._ent.insert(tk.INSERT, self.book.text[self.book.last_point].center(60))
             self.book.last_point += 1
             time.sleep(self._speed)
 
@@ -95,17 +94,26 @@ class MainWindow(tk.Tk):
         if self._speed >= self._min_speed:
             return
         self._speed += 0.05
+        self._refresh_entry(self._spd, str(100 - (self._speed // (self._min_speed / 100))) + '%')
 
     def _speed_up(self):
         if self._speed <= self._max_speed:
             return
         self._speed -= 0.05
+        self._refresh_entry(self._spd, str(100 - (self._speed // (self._min_speed / 100))) + '%')
 
     def _jump_right(self):
         self.book.last_point += 10
+        self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
     def _jump_left(self):
         self.book.last_point -= 10
+        self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
+
+    @staticmethod
+    def _refresh_entry(entry, text):
+        entry.delete(0, 'end')
+        entry.insert(tk.INSERT, text)
 
 
 if __name__ == '__main__':
