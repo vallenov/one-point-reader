@@ -12,6 +12,8 @@ class MainWindow(tk.Tk):
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._list_of_widgets = []
         self._speed = 0.5
+        self._max_speed = 0.1
+        self._min_speed = 2
         self._create_widgets()
 
     def _create_widgets(self):
@@ -23,6 +25,10 @@ class MainWindow(tk.Tk):
         self._ent = tk.Entry(self, width=40)
         self._ent.grid(row=line, column=1, columnspan=4)
         self._list_of_widgets.append(self._ent)
+
+        self._spd = tk.Entry(self, width=10)
+        self._spd.grid(row=line, column=5, columnspan=2)
+        self._list_of_widgets.append(self._spd)
         line += 1
         self._prev_btn = tk.Button(self, text='<-', command=None)
         self._prev_btn.grid(row=line, column=1)
@@ -62,9 +68,11 @@ class MainWindow(tk.Tk):
             if i == len(lst):
                 i = 0
             self._ent.delete(0, 'end')
-            self._ent.insert(tk.INSERT, lst[i])
+            self._spd.delete(0, 'end')
+            self._spd.insert(tk.INSERT, str(100 - (self._speed // (self._min_speed / 100))) + '%')
+            self._ent.insert(tk.INSERT, lst[i].center(60))
             i += 1
-            print(self._speed)
+
             time.sleep(self._speed)
 
     def _stop(self):
@@ -75,12 +83,12 @@ class MainWindow(tk.Tk):
         self.reading_task.start()
 
     def _speed_down(self):
-        if self._speed > 3:
+        if self._speed >= self._min_speed:
             return
         self._speed += 0.05
 
     def _speed_up(self):
-        if self._speed <= 0.05:
+        if self._speed <= self._max_speed:
             return
         self._speed -= 0.05
 
