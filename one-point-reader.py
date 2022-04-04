@@ -73,7 +73,6 @@ class MainWindow(tk.Tk):
         self._list_of_widgets.append(self._next_btn)
 
     def _reading(self):
-        #lst = self.book.text.strip().split()
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
             if self.book.last_point >= len(self.book.text):
