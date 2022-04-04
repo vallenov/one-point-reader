@@ -1,6 +1,22 @@
 import tkinter as tk
 import time
 import threading
+import os
+
+
+class Book:
+
+    def __init__(self, full_name, last_point=0):
+        self.full_name = full_name
+        self.last_point = last_point
+        if full_name and os.path.exists(full_name):
+            self.text = self.open_file_book()
+        else:
+            raise FileNotFoundError
+
+    def open_file_book(self):
+        with open(self.full_name, 'r') as book:
+            return book.read()
 
 
 class MainWindow(tk.Tk):
@@ -13,8 +29,9 @@ class MainWindow(tk.Tk):
         self._list_of_widgets = []
         self._speed = 0.5
         self._max_speed = 0.1
-        self._min_speed = 2
+        self._min_speed = 1
         self._create_widgets()
+        self.book = Book('/home/vladimir/prog/python/projects/one-point-reader/book.txt')
 
     def _create_widgets(self):
         line = 1
@@ -30,7 +47,7 @@ class MainWindow(tk.Tk):
         self._spd.grid(row=line, column=5, columnspan=2)
         self._list_of_widgets.append(self._spd)
         line += 1
-        self._prev_btn = tk.Button(self, text='<-', command=None)
+        self._prev_btn = tk.Button(self, text='<-', command=self._jump_left)
         self._prev_btn.grid(row=line, column=1)
         self._list_of_widgets.append(self._prev_btn)
 
@@ -42,7 +59,7 @@ class MainWindow(tk.Tk):
         self._stop_btn.grid(row=line, column=3)
         self._list_of_widgets.append(self._stop_btn)
 
-        self._next_btn = tk.Button(self, text='->', command=None)
+        self._next_btn = tk.Button(self, text='->', command=self._jump_right)
         self._next_btn.grid(row=line, column=4)
         self._list_of_widgets.append(self._next_btn)
 
@@ -55,24 +72,16 @@ class MainWindow(tk.Tk):
         self._list_of_widgets.append(self._next_btn)
 
     def _reading(self):
-        lst = '''   Однажды, осенним вечером, одна девушка захотела прогуляться. Выходя из дома, она взяла телефон и ключи. Выйдя на улицу, она решила пройтись по аллее, которая находилась не далеко от ее дома. Когда она дошла до места, было уже темно и безлюдно. 
-   Светили фонари, она шла, совсем, совсем одна. Пройдя половину аллеи, она остановилась и присела на скамейку. Она слушала тишину, прерываемую лишь легким шуршанием ветра в кронах деревьев и далекого звука машины. 
-   Очнувшись от раздумий, девушка с удивлением обнаружила, что прошел целый час. Посидев еще немного, она собиралась уже пойти обратно, как вдруг фонари мигнули и погасли. Теперь единственным источником света была луна. Сильный порыв, внезапно налетевшего ветра сбросил волосы на лицо. Неподалеку раздался странный звук, похожий на бормотание. Девушка посмотрела в ту сторону, откуда шел звук, но там были только ветер и темнота. Девушка закружилась на месте, пытаясь обнаружить источник бормотания, но тщетно. Она была одна. Девушка сильно нервничая и постоянно оглядываясь пошла обратно к дому, но не успев пройти и пяти метров она наткнулась на невидимую стену. От неожиданности она даже чуть не упала, но страх мгновенно привел ее в чувство.
-   - Кто здесь?
-   Сама не своя от страха, девушка заметила силуэт, стоящий недалеко от нее. Секунду назад там никого не было. При свете луны девушка пыталась всмотреться в лицо, но никак не могла его рассмотреть из-за капюшона. Неожиданно силуэт начала медленно приближаться. Балахон, в котором он был не колебался при движении. Он медленно плыл. Девушка хотела закричать, но не смогла, страх сдавил ей горло. Она сделала шаг назад, потом другой, она не могла побежать, не могла повернуться спиной, так что просто пятилась. А силуэт приближался медленно, очень медленно. Девушка не могла больше пятиться, она поняла, что вообще не может больше двигаться. Что-то невидимое держало ее. Силуэт подплыл вплотную и остановился. Он оказался низкого роста, не доставал девушке даже до плечей. Они стояли не шелохнувшись. Дул ветер. Где-то вдалеке завыла сирена. Бормотание усилилось. Капюшон приподнялся, силуэт уставился на девушку. За капюшоном не было видно его лица. Но тут капюшон откинулся назад. Два огромных белых глаза не моргая смотрели на девушку. Под глазами задвигались ноздри, кривые и вертикальные. Там где должен был быть рот, раскрылась широкая щель, раскрылась медленно с еле слышным хлюпающим звуком. И неожиданно силуэт издал леденящий душу вопль и вцепился в лицо девушки...
-   С тех пор эту девушку никто не видел. Но местные говорят, что иногда в особо ветреные ночи, можно услышать тихое бормотание, как-будто кто-то невидимый бормочет, что-то невнятное, а другой голос ему отвечает.
-'''
-        lst = lst.strip().split()
-        i = 0
+        lst = self.book.text.strip().split()
         while getattr(self.reading_task, "run", True):
-            if i == len(lst):
-                i = 0
+            self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
+            if self.book.last_point >= len(lst):
+                return
             self._ent.delete(0, 'end')
             self._spd.delete(0, 'end')
             self._spd.insert(tk.INSERT, str(100 - (self._speed // (self._min_speed / 100))) + '%')
-            self._ent.insert(tk.INSERT, lst[i].center(60))
-            i += 1
-
+            self._ent.insert(tk.INSERT, lst[self.book.last_point].center(60))
+            self.book.last_point += 1
             time.sleep(self._speed)
 
     def _stop(self):
@@ -91,6 +100,12 @@ class MainWindow(tk.Tk):
         if self._speed <= self._max_speed:
             return
         self._speed -= 0.05
+
+    def _jump_right(self):
+        self.book.last_point += 10
+
+    def _jump_left(self):
+        self.book.last_point -= 10
 
 
 if __name__ == '__main__':
