@@ -32,9 +32,8 @@ class MainWindow(tk.Tk):
         self._speed = 0.5
         self._max_speed = 0.1
         self._min_speed = 1
-        self._create_widgets()
         self.file_types = [('Текстовые файлы', '*.txt'), ('Все файлы', '*')]
-        #self.book = Book('/home/vladimir/prog/python/projects/one-point-reader/book.txt')
+        self._create_widgets()
 
     def _create_widgets(self):
         line = 1
@@ -45,9 +44,6 @@ class MainWindow(tk.Tk):
         self._open_file_btn = tk.Button(self, text='Открыть файл', command=self._show_dlg)
         self._open_file_btn.grid(row=line, column=5, columnspan=2)
         self._list_of_widgets.append(self._open_file_btn)
-
-        self._open_file_dlg = tk.filedialog.Open(self)
-
         line += 1
         self._ent = tk.Entry(self, width=40)
         self._ent.grid(row=line, column=1, columnspan=4)
@@ -130,8 +126,8 @@ class MainWindow(tk.Tk):
         entry.insert(tk.INSERT, text)
 
     def _show_dlg(self):
-        file = self._open_file_dlg.show()
-        if file != '':
+        file = self._open_file_dlg = tk.filedialog.askopenfilename(parent=self, filetypes=self.file_types)
+        if file:
             self.book = Book(file)
 
 
