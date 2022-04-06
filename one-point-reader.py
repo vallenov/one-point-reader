@@ -2,6 +2,8 @@ import tkinter as tk
 import time
 import threading
 import os
+from tkinter import filedialog
+import tkinter.messagebox as mb
 
 
 class Book:
@@ -31,13 +33,21 @@ class MainWindow(tk.Tk):
         self._max_speed = 0.1
         self._min_speed = 1
         self._create_widgets()
-        self.book = Book('/home/vladimir/prog/python/projects/one-point-reader/book.txt')
+        self.file_types = [('Текстовые файлы', '*.txt'), ('Все файлы', '*')]
+        #self.book = Book('/home/vladimir/prog/python/projects/one-point-reader/book.txt')
 
     def _create_widgets(self):
         line = 1
         self._tn = tk.Label(self, text='===============================')
         self._tn.grid(row=line, column=1, columnspan=4)
         self._list_of_widgets.append(self._tn)
+
+        self._open_file_btn = tk.Button(self, text='Открыть файл', command=self._show_dlg)
+        self._open_file_btn.grid(row=line, column=5, columnspan=2)
+        self._list_of_widgets.append(self._open_file_btn)
+
+        self._open_file_dlg = tk.filedialog.Open(self)
+
         line += 1
         self._ent = tk.Entry(self, width=40)
         self._ent.grid(row=line, column=1, columnspan=4)
@@ -73,6 +83,11 @@ class MainWindow(tk.Tk):
         self._list_of_widgets.append(self._next_btn)
 
     def _reading(self):
+        try:
+            getattr(self, 'book')
+        except AttributeError as ae:
+            mb.showerror('Ошибка!', 'Не выбрана книга')
+            return
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
             if self.book.last_point >= len(self.book.text):
@@ -113,6 +128,11 @@ class MainWindow(tk.Tk):
     def _refresh_entry(entry, text):
         entry.delete(0, 'end')
         entry.insert(tk.INSERT, text)
+
+    def _show_dlg(self):
+        file = self._open_file_dlg.show()
+        if file != '':
+            self.book = Book(file)
 
 
 if __name__ == '__main__':
