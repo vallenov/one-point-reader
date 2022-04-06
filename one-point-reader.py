@@ -29,9 +29,9 @@ class MainWindow(tk.Tk):
         self.title('One-point Reader') #название окна
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._list_of_widgets = []
-        self._speed = 0.5
-        self._max_speed = 0.1
-        self._min_speed = 1
+        self._speed = 50
+        self._max_speed = 100
+        self._min_speed = 10
         self.file_types = [('Текстовые файлы', '*.txt'), ('Все файлы', '*')]
         self._create_widgets()
 
@@ -52,7 +52,7 @@ class MainWindow(tk.Tk):
         self._spd = tk.Entry(self, width=10)
         self._spd.grid(row=line, column=5, columnspan=2)
         self._list_of_widgets.append(self._spd)
-        self._spd.insert(tk.INSERT, str(100 - (self._speed // (self._min_speed / 100))) + '%')
+        self._spd.insert(tk.INSERT, f'{self._speed}%')
         line += 1
         self._prev_btn = tk.Button(self, text='<-', command=self._jump_left)
         self._prev_btn.grid(row=line, column=1)
@@ -91,7 +91,7 @@ class MainWindow(tk.Tk):
             self._ent.delete(0, 'end')
             self._ent.insert(tk.INSERT, self.book.text[self.book.last_point].center(60))
             self.book.last_point += 1
-            time.sleep(self._speed)
+            time.sleep(0.05 + ((100 - self._speed) / 150))
 
     def _stop(self):
         self.reading_task.run = False
@@ -101,16 +101,17 @@ class MainWindow(tk.Tk):
         self.reading_task.start()
 
     def _speed_down(self):
-        if self._speed >= self._min_speed:
+        if self._speed <= self._min_speed:
             return
-        self._speed += 0.05
-        self._refresh_entry(self._spd, str(100 - (self._speed // (self._min_speed / 100))) + '%')
+        self._speed -= 5
+        self._refresh_entry(self._spd, f'{self._speed}%')
 
     def _speed_up(self):
-        if self._speed <= self._max_speed:
+        if self._speed >= self._max_speed:
             return
-        self._speed -= 0.05
-        self._refresh_entry(self._spd, str(100 - (self._speed // (self._min_speed / 100))) + '%')
+        self._speed += 5
+        print(self._speed)
+        self._refresh_entry(self._spd, f'{self._speed}%')
 
     def _jump_right(self):
         self.book.last_point += 10
@@ -121,7 +122,7 @@ class MainWindow(tk.Tk):
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
     @staticmethod
-    def _refresh_entry(entry, text):
+    def _refresh_entry(entry: tk.Entry, text: str):
         entry.delete(0, 'end')
         entry.insert(tk.INSERT, text)
 
