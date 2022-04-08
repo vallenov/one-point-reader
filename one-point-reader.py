@@ -12,6 +12,7 @@ class Book:
     def __init__(self, full_name, last_point=0):
         self.full_name = full_name
         self.last_point = last_point
+        self.ready_to_read = False
         self.map = {
             'txt': self.open_txt_book,
             'docx': self.open_docx_book
@@ -21,6 +22,7 @@ class Book:
             func = self.map.get(extension, None)
             if func:
                 self.text = func()
+                self.ready_to_read = True
             else:
                 mb.showerror('Ошибка!', 'Неподдерживаемый формат файла')
         else:
@@ -34,7 +36,7 @@ class Book:
         text = ''
         doc = docx.Document(self.full_name)
         for paragraph in doc.paragraphs:
-            text += paragraph.text
+            text += f'{paragraph.text}\n'
         return text.split()
 
 
@@ -114,7 +116,7 @@ class MainWindow(tk.Tk):
             return True
 
     def _reading(self):
-        if not self._check_book(True):
+        if not self._check_book(True) or not self.book.ready_to_read:
             return
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
@@ -126,12 +128,12 @@ class MainWindow(tk.Tk):
             time.sleep(0.05 + ((100 - self._speed) / 150))
 
     def _pause(self):
-        if not self._check_book():
+        if not self._check_book() or not self.book.ready_to_read:
             return
         self.reading_task.run = False
 
     def _stop(self):
-        if not self._check_book():
+        if not self._check_book() or not self.book.ready_to_read:
             return
         self.reading_task.run = False
         self.book.last_point = 0
@@ -154,13 +156,13 @@ class MainWindow(tk.Tk):
         self._refresh_entry(self._spd, f'{self._speed}%')
 
     def _jump_right(self):
-        if not self._check_book():
+        if not self._check_book() or not self.book.ready_to_read:
             return
         self.book.last_point += 10
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
     def _jump_left(self):
-        if not self._check_book():
+        if not self._check_book() or not self.book.ready_to_read:
             return
         self.book.last_point -= 10
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
@@ -174,6 +176,8 @@ class MainWindow(tk.Tk):
         file = self._open_file_dlg = tk.filedialog.askopenfilename(parent=self, filetypes=self.file_types)
         if file:
             self.book = Book(file)
+            if not self.book.ready_to_read:
+                return
             file_name = file.split('/')[-1]
             self._refresh_entry(self._ent, file_name.center(60))
 
