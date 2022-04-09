@@ -5,6 +5,8 @@ import os
 from tkinter import filedialog
 import tkinter.messagebox as mb
 import docx
+#from PyPDF2 import PdfFileReader
+import fitz
 
 
 class Book:
@@ -15,7 +17,8 @@ class Book:
         self.ready_to_read = False
         self.map = {
             'txt': self.open_txt_book,
-            'docx': self.open_docx_book
+            'docx': self.open_docx_book,
+            'pdf': self.open_pdf_book
         }
         if full_name and os.path.exists(full_name):
             extension = full_name.split('.')[-1]
@@ -39,6 +42,16 @@ class Book:
             text += f'{paragraph.text}\n'
         return text.split()
 
+    def open_pdf_book(self):
+        text = ''
+        with fitz.open(self.full_name) as doc:
+            for page in doc:
+                tmp = page.get_text()
+                if '. .' in tmp:
+                    continue
+                text += tmp
+        return text.split()
+
 
 class MainWindow(tk.Tk):
     def __init__(self):
@@ -51,7 +64,10 @@ class MainWindow(tk.Tk):
         self._speed = 50
         self._max_speed = 100
         self._min_speed = 10
-        self.file_types = [('Office Word', '*.docx'), ('Текстовые файлы', '*.txt'), ('Все файлы', '*')]
+        self.file_types = [('Office Word', '*.docx'),
+                           ('Текстовые файлы', '*.txt'),
+                           ('PDF', '*.pdf'),
+                           ('Все файлы', '*')]
         self._create_widgets()
 
     def _create_widgets(self):
