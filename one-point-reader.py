@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import time
 import threading
 import os
@@ -78,6 +79,8 @@ class MainWindow(tk.Tk):
         self._speed = 50
         self._max_speed = 100
         self._min_speed = 10
+        self._exist_scale = False
+        self._reading_process = False
         self.file_types = [('FB2', '*.fb2'),
                            ('Office Word', '*.docx'),
                            ('Текстовые файлы', '*.txt'),
@@ -136,6 +139,30 @@ class MainWindow(tk.Tk):
         self._next_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._next_btn)
 
+        self.cur_row = row
+
+    def _add_scale(self):
+        if self._exist_scale:
+            self._lbl.grid_remove()
+            self._scale.grid_remove()
+
+        self.geometry(f'{self._WIDTH}x{self._HEIGHT+20}')
+        self.cur_row += 1
+
+        self._var = tk.IntVar()
+        self._lbl = tk.Label(self, textvariable=self._var)
+        self._lbl.grid(row=self.cur_row, column=1)
+
+        self._scale = ttk.Scale(self, from_=0, to=len(self.book.text), command=self._set_scale)
+        self._scale.grid(row=self.cur_row, column=2, columnspan=5, sticky='NSEW')
+        self._list_of_widgets.append(self._next_btn)
+        self._exist_scale = True
+
+    def _set_scale(self, val):
+        v = int(float(val) / (len(self.book.text) / 100))
+        self.book.last_point = int(float(val)) - 1
+        self._var.set(v)
+
     def _check_book(self, show_error=False):
         try:
             getattr(self, 'book')
@@ -147,6 +174,10 @@ class MainWindow(tk.Tk):
             return True
 
     def _reading(self):
+        if self._reading_process:
+            return
+        else:
+            self._reading_process = True
         if not self._check_book(True) or not self.book.ready_to_read:
             return
         while getattr(self.reading_task, "run", True):
@@ -162,11 +193,13 @@ class MainWindow(tk.Tk):
         if not self._check_book() or not self.book.ready_to_read:
             return
         self.reading_task.run = False
+        self._reading_process = False
 
     def _stop(self):
         if not self._check_book() or not self.book.ready_to_read:
             return
         self.reading_task.run = False
+        self._reading_process = False
         self.book.last_point = 0
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
@@ -211,6 +244,7 @@ class MainWindow(tk.Tk):
                 return
             file_name = file.split('/')[-1]
             self._refresh_entry(self._ent, file_name.center(60))
+            self._add_scale()
 
 
 if __name__ == '__main__':
