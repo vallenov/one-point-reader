@@ -80,6 +80,7 @@ class MainWindow(tk.Tk):
         self._max_speed = 100
         self._min_speed = 10
         self._exist_scale = False
+        self._reading_process = False
         self.file_types = [('FB2', '*.fb2'),
                            ('Office Word', '*.docx'),
                            ('Текстовые файлы', '*.txt'),
@@ -173,6 +174,10 @@ class MainWindow(tk.Tk):
             return True
 
     def _reading(self):
+        if self._reading_process:
+            return
+        else:
+            self._reading_process = True
         if not self._check_book(True) or not self.book.ready_to_read:
             return
         while getattr(self.reading_task, "run", True):
@@ -188,11 +193,13 @@ class MainWindow(tk.Tk):
         if not self._check_book() or not self.book.ready_to_read:
             return
         self.reading_task.run = False
+        self._reading_process = False
 
     def _stop(self):
         if not self._check_book() or not self.book.ready_to_read:
             return
         self.reading_task.run = False
+        self._reading_process = False
         self.book.last_point = 0
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
