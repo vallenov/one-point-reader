@@ -5,8 +5,8 @@ import os
 from tkinter import filedialog
 import tkinter.messagebox as mb
 import docx
-#from PyPDF2 import PdfFileReader
 import fitz
+from bs4 import BeautifulSoup
 
 
 class Book:
@@ -16,9 +16,10 @@ class Book:
         self.last_point = last_point
         self.ready_to_read = False
         self.map = {
-            'txt': self.open_txt_book,
-            'docx': self.open_docx_book,
-            'pdf': self.open_pdf_book
+            'txt': self.open_txt,
+            'docx': self.open_docx,
+            'pdf': self.open_pdf,
+            'fb2': self.open_fb2
         }
         if full_name and os.path.exists(full_name):
             extension = full_name.split('.')[-1]
@@ -31,18 +32,18 @@ class Book:
         else:
             raise FileNotFoundError
 
-    def open_txt_book(self):
+    def open_txt(self):
         with open(self.full_name, 'r') as book:
             return book.read().strip().split()
 
-    def open_docx_book(self):
+    def open_docx(self):
         text = ''
         doc = docx.Document(self.full_name)
         for paragraph in doc.paragraphs:
             text += f'{paragraph.text}\n'
         return text.split()
 
-    def open_pdf_book(self):
+    def open_pdf(self):
         text = ''
         with fitz.open(self.full_name) as doc:
             for page in doc:
@@ -50,6 +51,19 @@ class Book:
                 if '. .' in tmp:
                     continue
                 text += tmp
+        return text.split()
+
+    def open_fb2(self):
+        with open(self.full_name, 'r') as fb2:
+            data = fb2.read()
+        soup = BeautifulSoup(data, 'lxml')
+        body = soup.find('body')
+        sections = body.find_all('section')
+        text = ''
+        for section in sections:
+            fragments = section.find_all('p')
+            for fragment in fragments:
+                text += f'{fragment.text}\n'
         return text.split()
 
 
@@ -64,7 +78,8 @@ class MainWindow(tk.Tk):
         self._speed = 50
         self._max_speed = 100
         self._min_speed = 10
-        self.file_types = [('Office Word', '*.docx'),
+        self.file_types = [('FB2', '*.fb2'),
+                           ('Office Word', '*.docx'),
                            ('Текстовые файлы', '*.txt'),
                            ('PDF', '*.pdf'),
                            ('Все файлы', '*')]
