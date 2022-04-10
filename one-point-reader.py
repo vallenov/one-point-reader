@@ -16,10 +16,10 @@ class Book:
         self.last_point = last_point
         self.ready_to_read = False
         self.map = {
-            'txt': self.open_txt_book,
-            'docx': self.open_docx_book,
-            'pdf': self.open_pdf_book,
-            'fb2': self.open_fb2_book
+            'txt': self.open_txt,
+            'docx': self.open_docx,
+            'pdf': self.open_pdf,
+            'fb2': self.open_fb2
         }
         if full_name and os.path.exists(full_name):
             extension = full_name.split('.')[-1]
@@ -32,18 +32,18 @@ class Book:
         else:
             raise FileNotFoundError
 
-    def open_txt_book(self):
+    def open_txt(self):
         with open(self.full_name, 'r') as book:
             return book.read().strip().split()
 
-    def open_docx_book(self):
+    def open_docx(self):
         text = ''
         doc = docx.Document(self.full_name)
         for paragraph in doc.paragraphs:
             text += f'{paragraph.text}\n'
         return text.split()
 
-    def open_pdf_book(self):
+    def open_pdf(self):
         text = ''
         with fitz.open(self.full_name) as doc:
             for page in doc:
@@ -53,7 +53,7 @@ class Book:
                 text += tmp
         return text.split()
 
-    def open_fb2_book(self):
+    def open_fb2(self):
         with open(self.full_name, 'r') as fb2:
             data = fb2.read()
         soup = BeautifulSoup(data, 'lxml')
