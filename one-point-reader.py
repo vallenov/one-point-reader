@@ -5,8 +5,8 @@ import os
 from tkinter import filedialog
 import tkinter.messagebox as mb
 import docx
-#from PyPDF2 import PdfFileReader
 import fitz
+from bs4 import BeautifulSoup
 
 
 class Book:
@@ -18,7 +18,8 @@ class Book:
         self.map = {
             'txt': self.open_txt_book,
             'docx': self.open_docx_book,
-            'pdf': self.open_pdf_book
+            'pdf': self.open_pdf_book,
+            'fb2': self.open_fb2_book
         }
         if full_name and os.path.exists(full_name):
             extension = full_name.split('.')[-1]
@@ -52,6 +53,19 @@ class Book:
                 text += tmp
         return text.split()
 
+    def open_fb2_book(self):
+        with open(self.full_name, 'r') as fb2:
+            data = fb2.read()
+        soup = BeautifulSoup(data, 'lxml')
+        body = soup.find('body')
+        sections = body.find_all('section')
+        text = ''
+        for section in sections:
+            fragments = section.find_all('p')
+            for fragment in fragments:
+                text += f'{fragment.text}\n'
+        return text.split()
+
 
 class MainWindow(tk.Tk):
     def __init__(self):
@@ -64,7 +78,8 @@ class MainWindow(tk.Tk):
         self._speed = 50
         self._max_speed = 100
         self._min_speed = 10
-        self.file_types = [('Office Word', '*.docx'),
+        self.file_types = [('FB2', '*.fb2'),
+                           ('Office Word', '*.docx'),
                            ('Текстовые файлы', '*.txt'),
                            ('PDF', '*.pdf'),
                            ('Все файлы', '*')]
