@@ -33,18 +33,18 @@ class Book:
         else:
             raise FileNotFoundError
 
-    def open_txt(self):
+    def open_txt(self) -> list:
         with open(self.full_name, 'r') as book:
             return book.read().strip().split()
 
-    def open_docx(self):
+    def open_docx(self) -> list:
         text = ''
         doc = docx.Document(self.full_name)
         for paragraph in doc.paragraphs:
             text += f'{paragraph.text}\n'
         return text.split()
 
-    def open_pdf(self):
+    def open_pdf(self) -> list:
         text = ''
         with fitz.open(self.full_name) as doc:
             for page in doc:
@@ -54,7 +54,7 @@ class Book:
                 text += tmp
         return text.split()
 
-    def open_fb2(self):
+    def open_fb2(self) -> list:
         with open(self.full_name, 'r') as fb2:
             data = fb2.read()
         soup = BeautifulSoup(data, 'lxml')
@@ -89,6 +89,9 @@ class MainWindow(tk.Tk):
         self._create_widgets()
 
     def _create_widgets(self):
+        """
+        Create GUI
+        """
         row = 1
         col = 1
         self._tn = tk.Label(self, text='===============================')
@@ -142,6 +145,9 @@ class MainWindow(tk.Tk):
         self.cur_row = row
 
     def _add_scale(self):
+        """
+        Create reading progress bar
+        """
         if self._exist_scale:
             self._lbl.grid_remove()
             self._scale.grid_remove()
@@ -159,11 +165,17 @@ class MainWindow(tk.Tk):
         self._exist_scale = True
 
     def _set_scale(self, val):
+        """
+        Set value of Scale
+        """
         v = int(float(val) / (len(self.book.text) / 100))
         self.book.last_point = int(float(val)) - 1
         self._var.set(v)
 
     def _check_book(self, show_error=False):
+        """
+        Book exist check
+        """
         try:
             getattr(self, 'book')
         except AttributeError:
@@ -174,6 +186,9 @@ class MainWindow(tk.Tk):
             return True
 
     def _reading(self):
+        """
+        Separate reading task
+        """
         if self._reading_process:
             return
         else:
@@ -208,24 +223,36 @@ class MainWindow(tk.Tk):
         self.reading_task.start()
 
     def _speed_down(self):
+        """
+        Decrease in reading speed
+        """
         if self._speed <= self._min_speed:
             return
         self._speed -= 5
         self._refresh_entry(self._spd, f'{self._speed}%')
 
     def _speed_up(self):
+        """
+        Increase in reading speed
+        """
         if self._speed >= self._max_speed:
             return
         self._speed += 5
         self._refresh_entry(self._spd, f'{self._speed}%')
 
     def _jump_right(self):
+        """
+        Skip 10 words
+        """
         if not self._check_book() or not self.book.ready_to_read:
             return
         self.book.last_point += 10
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
     def _jump_left(self):
+        """
+        Rewind 10 words
+        """
         if not self._check_book() or not self.book.ready_to_read:
             return
         self.book.last_point -= 10
@@ -233,10 +260,16 @@ class MainWindow(tk.Tk):
 
     @staticmethod
     def _refresh_entry(entry: tk.Entry, text: str):
+        """
+        Clear entry and fill
+        """
         entry.delete(0, 'end')
         entry.insert(tk.INSERT, text)
 
     def _show_dlg(self):
+        """
+        Show file system
+        """
         file = self._open_file_dlg = tk.filedialog.askopenfilename(parent=self, filetypes=self.file_types)
         if file:
             self.book = Book(file)
