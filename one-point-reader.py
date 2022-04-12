@@ -34,9 +34,6 @@ class Book:
             raise FileNotFoundError
 
     def open_txt(self) -> list:
-        """
-
-        """
         with open(self.full_name, 'r') as book:
             return book.read().strip().split()
 
