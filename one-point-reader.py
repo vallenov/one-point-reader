@@ -261,7 +261,7 @@ class MainWindow(tk.Tk):
     @staticmethod
     def _refresh_entry(entry: tk.Entry, text: str):
         """
-        Clear entry and fill
+        Clear entry and fill it
         """
         entry.delete(0, 'end')
         entry.insert(tk.INSERT, text)
