@@ -7,7 +7,7 @@ WORK_DIR=`pwd`
 sudo apt install python
 sudo apt install pip
 
-if [[ `ls .venv` = "" ]]
+if [[ `sudo ls .venv` = "" ]]
     then
         python -m venv .venv
     fi
@@ -18,11 +18,16 @@ pip install -r requirements.txt
 echo -e "cd $WORK_DIR
 . .venv/bin/activate
 nohup .venv/bin/python one-point-reader.py &" | sudo tee $WORK_DIR/start.sh
+sudo chmod 755 $WORK_DIR/start.sh
 
 # Генерация файла деинсталяции
 echo -e "cd $WORK_DIR
 sudo rm -rf /usr/share/applications/one-point-reader.desktop
-sudo rm -rf $WORK_DIR/.venv" | sudo tee $WORK_DIR/uninstall.sh
+sudo rm -rf $WORK_DIR/.venv
+sudo rm -rf $WORK_DIR/start.sh
+sudo rm -rf $WORK_DIR/uninstall.sh
+echo Deinstall complete" | sudo tee $WORK_DIR/uninstall.sh
+sudo chmod 755 $WORK_DIR/uninstall.sh
 
 # Генерация ярлыка запуска
 echo -e "[Desktop Entry]
