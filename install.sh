@@ -7,8 +7,9 @@ WORK_DIR=`pwd`
 sudo apt install python
 sudo apt install pip
 
-if [[ `sudo ls .venv` = "" ]]
+if [ ! -d "$WORK_DIR/.venv" ]
     then
+        echo Create venv
         python -m venv .venv
     fi
 . .venv/bin/activate && echo activate venv
@@ -26,7 +27,7 @@ sudo rm -rf /usr/share/applications/one-point-reader.desktop
 sudo rm -rf $WORK_DIR/.venv
 sudo rm -rf $WORK_DIR/start.sh
 sudo rm -rf $WORK_DIR/uninstall.sh
-echo Deinstall complete" | sudo tee $WORK_DIR/uninstall.sh
+echo Uninstall complete" | sudo tee $WORK_DIR/uninstall.sh
 sudo chmod 755 $WORK_DIR/uninstall.sh
 
 # Генерация ярлыка запуска
