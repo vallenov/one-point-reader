@@ -4,8 +4,8 @@ echo Install One-point Reader...
 
 WORK_DIR=`pwd`
 
-sudo apt install python
-sudo apt install pip
+sudo apt install python3
+sudo apt install python3-pip
 
 if [ ! -d "$WORK_DIR/.venv" ]
     then
