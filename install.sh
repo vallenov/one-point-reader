@@ -4,14 +4,18 @@ echo Install One-point Reader...
 
 WORK_DIR=`pwd`
 
+# Установка пакетов зависимостей
 sudo apt install python3
 sudo apt install python3-pip
 
+# Создание виртуального окружения
 if [ ! -d "$WORK_DIR/.venv" ]
     then
         echo Create venv
         python -m venv .venv
     fi
+
+# Установка зависимостей в виртуальное окружение
 . .venv/bin/activate && echo activate venv
 pip install -r requirements.txt
 
