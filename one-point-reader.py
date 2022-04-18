@@ -34,10 +34,16 @@ class Book:
             raise FileNotFoundError
 
     def open_txt(self) -> list:
+        """
+        Work with txt files
+        """
         with open(self.full_name, 'r') as book:
             return book.read().strip().split()
 
     def open_docx(self) -> list:
+        """
+        Work with docx files
+        """
         text = ''
         doc = docx.Document(self.full_name)
         for paragraph in doc.paragraphs:
@@ -45,6 +51,9 @@ class Book:
         return text.split()
 
     def open_pdf(self) -> list:
+        """
+        Work with PDF files
+        """
         text = ''
         with fitz.open(self.full_name) as doc:
             for page in doc:
@@ -55,6 +64,9 @@ class Book:
         return text.split()
 
     def open_fb2(self) -> list:
+        """
+        Work with fb2 files
+        """
         with open(self.full_name, 'r') as fb2:
             data = fb2.read()
         soup = BeautifulSoup(data, 'lxml')
