@@ -57,10 +57,7 @@ class Book:
         text = ''
         with fitz.open(self.full_name) as doc:
             for page in doc:
-                tmp = page.get_text()
-                if '. .' in tmp:
-                    continue
-                text += tmp
+                text += page.get_text()
         return text.split()
 
     def open_fb2(self) -> list:
