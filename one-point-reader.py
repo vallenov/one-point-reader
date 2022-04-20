@@ -57,7 +57,9 @@ class Book:
         text = ''
         with fitz.open(self.full_name) as doc:
             for page in doc:
-                text += page.get_text()
+                tmp = page.get_text()
+                if '. .' not in tmp:
+                    text += tmp
         return text.split()
 
     def open_fb2(self) -> list:
@@ -79,10 +81,10 @@ class Book:
 
 class MainWindow(tk.Tk):
     def __init__(self):
-        super(). __init__()
+        super().__init__()
         self._HEIGHT = 100
         self._WIDTH = 500
-        self.title('One-point Reader') #название окна
+        self.title('One-point Reader')  # название окна
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._list_of_widgets = []
         self._speed = 50
@@ -103,9 +105,9 @@ class MainWindow(tk.Tk):
         """
         row = 1
         col = 1
-        self._tn = tk.Label(self, text='===============================')
-        self._tn.grid(row=row, column=col, columnspan=5)
-        self._list_of_widgets.append(self._tn)
+        # self._tn = tk.Label(self, text='='.center(30, '='))
+        # self._tn.grid(row=row, column=col, columnspan=5)
+        # self._list_of_widgets.append(self._tn)
         col += 5
         self._open_file_btn = tk.Button(self, text='Открыть файл', command=self._show_dlg)
         self._open_file_btn.grid(row=row, column=col, columnspan=2)
@@ -161,7 +163,7 @@ class MainWindow(tk.Tk):
             self._lbl.grid_remove()
             self._scale.grid_remove()
 
-        self.geometry(f'{self._WIDTH}x{self._HEIGHT+20}')
+        self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
         self.cur_row += 1
 
         self._var = tk.IntVar()
