@@ -166,23 +166,24 @@ class MainWindow(tk.Tk):
         """
         Create reading progress bar
         """
-        if self._exist_scale:
-            self._lbl.grid_remove()
-            self._scale.grid_remove()
-            # del self._lbl
-            # del self._scale
+
+            # self._lbl.grid_remove()
+            # self._scale.grid_remove()
+            # self._lbl.destroy()
+            # self._scale.destroy()
         self._HEIGHT += 20
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._HEIGHT -= 20
         self.cur_row += 1
 
         self._var = tk.IntVar()
-        self._lbl = tk.Label(self, textvariable=self._var)
-        self._lbl.grid(row=self.cur_row, column=1)
+        if not self._exist_scale:
+            self._lbl = tk.Label(self, textvariable=self._var)
+            self._lbl.grid(row=self.cur_row, column=1)
 
-        self._scale = ttk.Scale(self, from_=0, to=len(self.book.text), command=self._set_scale)
-        self._scale.grid(row=self.cur_row, column=2, columnspan=5, sticky='NSEW')
-        self._list_of_widgets.append(self._scale)
+            self._scale = ttk.Scale(self, from_=0, to=len(self.book.text), command=self._set_scale)
+            self._scale.grid(row=self.cur_row, column=2, columnspan=5, sticky='NSEW')
+            self._list_of_widgets.append(self._scale)
         self._exist_scale = True
 
     def _show_widgets(self):
