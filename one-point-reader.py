@@ -166,11 +166,6 @@ class MainWindow(tk.Tk):
         """
         Create reading progress bar
         """
-
-            # self._lbl.grid_remove()
-            # self._scale.grid_remove()
-            # self._lbl.destroy()
-            # self._scale.destroy()
         self._HEIGHT += 20
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._HEIGHT -= 20
@@ -217,8 +212,11 @@ class MainWindow(tk.Tk):
             if show_error:
                 mb.showerror('Ошибка!', 'Не выбрана книга')
             return False
-        else:
-            return True
+        try:
+            getattr(self, 'reading_task')
+        except AttributeError:
+            return False
+        return True
 
     def _reading(self):
         """
