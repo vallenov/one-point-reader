@@ -83,7 +83,7 @@ class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
         self._HEIGHT = 100
-        self._WIDTH = 500
+        self._WIDTH = 600
         self.title('One-point Reader')  # название окна
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._list_of_widgets = []
@@ -91,6 +91,7 @@ class MainWindow(tk.Tk):
         self._max_speed = 100
         self._min_speed = 10
         self._exist_scale = False
+        self._show_widget_flag = True
         self._reading_process = False
         self.file_types = [('FB2', '*.fb2'),
                            ('Office Word', '*.docx'),
@@ -105,13 +106,17 @@ class MainWindow(tk.Tk):
         """
         row = 1
         col = 1
-        # self._tn = tk.Label(self, text='='.center(30, '='))
-        # self._tn.grid(row=row, column=col, columnspan=5)
-        # self._list_of_widgets.append(self._tn)
+        self._tn = tk.Label(self, text='='.center(30, '='))
+        self._tn.grid(row=row, column=col, columnspan=5)
+        self._list_of_widgets.append(self._tn)
         col += 5
         self._open_file_btn = tk.Button(self, text='Открыть файл', command=self._show_dlg)
         self._open_file_btn.grid(row=row, column=col, columnspan=2)
         self._list_of_widgets.append(self._open_file_btn)
+        col += 2
+        self._rej_btn = tk.Button(self, text='Режим чтения', command=self._show_widgets)
+        # self._rej_btn.grid(row=row, column=col)
+        # self._list_of_widgets.append(self._rej_btn)
         row += 1
         col = 1
         self._ent = tk.Entry(self, width=40)
@@ -145,15 +150,17 @@ class MainWindow(tk.Tk):
         self._next_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._next_btn)
         col += 1
-        self._next_btn = tk.Button(self, text='+', command=self._speed_up)
-        self._next_btn.grid(row=row, column=col)
-        self._list_of_widgets.append(self._next_btn)
+        self._speed_up_btn = tk.Button(self, text='+', command=self._speed_up)
+        self._speed_up_btn.grid(row=row, column=col)
+        self._list_of_widgets.append(self._speed_up_btn)
         col += 1
-        self._next_btn = tk.Button(self, text='-', command=self._speed_down)
-        self._next_btn.grid(row=row, column=col)
-        self._list_of_widgets.append(self._next_btn)
+        self._speed_down_btn = tk.Button(self, text='-', command=self._speed_down)
+        self._speed_down_btn.grid(row=row, column=col)
+        self._list_of_widgets.append(self._speed_down_btn)
 
         self.cur_row = row
+
+        self._show_widget_flag = not self._show_widget_flag
 
     def _add_scale(self):
         """
@@ -162,8 +169,11 @@ class MainWindow(tk.Tk):
         if self._exist_scale:
             self._lbl.grid_remove()
             self._scale.grid_remove()
-
-        self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
+            # del self._lbl
+            # del self._scale
+        self._HEIGHT += 20
+        self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
+        self._HEIGHT -= 20
         self.cur_row += 1
 
         self._var = tk.IntVar()
@@ -172,8 +182,21 @@ class MainWindow(tk.Tk):
 
         self._scale = ttk.Scale(self, from_=0, to=len(self.book.text), command=self._set_scale)
         self._scale.grid(row=self.cur_row, column=2, columnspan=5, sticky='NSEW')
-        self._list_of_widgets.append(self._next_btn)
+        self._list_of_widgets.append(self._scale)
         self._exist_scale = True
+
+    def _show_widgets(self):
+        [widget.grid() for widget in self._list_of_widgets] if self._show_widget_flag \
+            else [widget.grid_remove() for widget in self._list_of_widgets]
+        if not self._show_widget_flag:
+            self._pause()
+            self.geometry('600x400')
+            self._txt = tk.Text(self, width=57, height=23)
+            self._txt.grid(row=1, column=1, rowspan=99)
+        else:
+            self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
+            self._txt.grid_remove()
+        self._show_widget_flag = not self._show_widget_flag
 
     def _set_scale(self, val):
         """
@@ -289,6 +312,7 @@ class MainWindow(tk.Tk):
             file_name = file.split('/')[-1]
             self._refresh_entry(self._ent, file_name.center(60))
             self._add_scale()
+            self._rej_btn.grid(row=1, column=8)
 
 
 if __name__ == '__main__':
