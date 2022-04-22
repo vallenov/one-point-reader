@@ -181,6 +181,16 @@ class MainWindow(tk.Tk):
             self._list_of_widgets.append(self._scale)
         self._exist_scale = True
 
+    @staticmethod
+    def _fill_text_place(start: int, book_text: list) -> str:
+        tmp = ''
+        while True:
+            if len(f'{tmp} {book_text[start]}') > 57 * 23 or start >= len(book_text):
+                break
+            tmp = f'{tmp} {book_text[start]}'
+            start += 1
+        return tmp
+
     def _show_widgets(self):
         [widget.grid() for widget in self._list_of_widgets] if self._show_widget_flag \
             else [widget.grid_remove() for widget in self._list_of_widgets]
@@ -189,6 +199,7 @@ class MainWindow(tk.Tk):
             self.geometry('600x400')
             self._txt = tk.Text(self, width=57, height=23)
             self._txt.grid(row=1, column=1, rowspan=99)
+            self._txt.insert('1.0', self._fill_text_place(self.book.last_point, self.book.text))
         else:
             self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
             self._txt.grid_remove()
