@@ -214,12 +214,31 @@ class MainWindow(tk.Tk):
             self._txt = tk.Text(self, width=57, height=23)
             self._txt.grid(row=1, column=1, rowspan=99)
             self._txt.insert('1.0', self._fill_text_place(self.book.last_point, self.book.text))
-            # self._txt.tag_config("tag", foreground="blue")
             self._txt.bind("<Button-1>", self._callback)
+            self._up_btn = tk.Button(self, text='⇑', command=self._up_text)
+            self._up_btn.grid(row=33, column=8)
+            self._down_btn = tk.Button(self, text='⇓', command=self._down_text)
+            self._down_btn.grid(row=34, column=8)
         else:
             self.geometry(f'{self._WIDTH + 100}x{self._HEIGHT + 20}')
             self._txt.grid_remove()
+            self._up_btn.grid_remove()
+            self._down_btn.grid_remove()
         self._show_widget_flag = not self._show_widget_flag
+
+    def _down_text(self):
+        self.book.last_point += len(self._fill_text_place(self.book.last_point, self.book.text).split())
+        self.book.last_point = len(self.book.text) \
+            if self.book.last_point > len(self.book.text) \
+            else self.book.last_point
+        self._txt.insert('1.0', self._fill_text_place(self.book.last_point, self.book.text))
+
+    def _up_text(self):
+        self.book.last_point -= len(self._fill_text_place(self.book.last_point, self.book.text).split())
+        self.book.last_point = 0 \
+            if self.book.last_point < 0 \
+            else self.book.last_point
+        self._txt.insert('1.0', self._fill_text_place(self.book.last_point, self.book.text))
 
     def _set_scale(self, val):
         """
