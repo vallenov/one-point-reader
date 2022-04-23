@@ -83,7 +83,7 @@ class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
         self._HEIGHT = 100
-        self._WIDTH = 600
+        self._WIDTH = 500
         self.title('One-point Reader')  # название окна
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
         self._list_of_widgets = []
@@ -114,7 +114,7 @@ class MainWindow(tk.Tk):
         self._open_file_btn.grid(row=row, column=col, columnspan=2)
         self._list_of_widgets.append(self._open_file_btn)
         col += 2
-        self._rej_btn = tk.Button(self, text='Режим чтения', command=self._show_widgets)
+        self._rej_btn = tk.Button(self, text='Режим чтения', command=self._change_widgets)
         # self._rej_btn.grid(row=row, column=col)
         # self._list_of_widgets.append(self._rej_btn)
         row += 1
@@ -191,7 +191,21 @@ class MainWindow(tk.Tk):
             start += 1
         return tmp
 
-    def _show_widgets(self):
+    def _callback(self, event):
+        index = event.widget.index("@%s,%s" % (event.x, event.y))
+        simbol_pos = int(index.split('.')[1])
+        cnt = 0
+        buf = 0
+        for word in self._fill_text_place(self.book.last_point, self.book.text).split():
+            if buf + len(word) >= simbol_pos:
+                break
+            cnt += 1
+            buf += len(word) + 1
+        self.book.last_point += cnt
+        self._change_widgets()
+        self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
+
+    def _change_widgets(self):
         [widget.grid() for widget in self._list_of_widgets] if self._show_widget_flag \
             else [widget.grid_remove() for widget in self._list_of_widgets]
         if not self._show_widget_flag:
@@ -200,8 +214,10 @@ class MainWindow(tk.Tk):
             self._txt = tk.Text(self, width=57, height=23)
             self._txt.grid(row=1, column=1, rowspan=99)
             self._txt.insert('1.0', self._fill_text_place(self.book.last_point, self.book.text))
+            # self._txt.tag_config("tag", foreground="blue")
+            self._txt.bind("<Button-1>", self._callback)
         else:
-            self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
+            self.geometry(f'{self._WIDTH + 100}x{self._HEIGHT + 20}')
             self._txt.grid_remove()
         self._show_widget_flag = not self._show_widget_flag
 
@@ -323,6 +339,7 @@ class MainWindow(tk.Tk):
             self._refresh_entry(self._ent, file_name.center(60))
             self._add_scale()
             self._rej_btn.grid(row=1, column=8)
+            self.geometry(f'600x120')
 
 
 if __name__ == '__main__':
