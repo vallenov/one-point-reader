@@ -195,7 +195,8 @@ class MainWindow(tk.Tk):
             else:
                 if buf + len(book_text[start]) > 57 * 20 or start <= 0:
                     tmp = tmp[::-1]
-                    break
+                    down = True
+                    continue
                 buf += len(book_text[start])
                 tmp.append(book_text[start])
                 start -= 1
