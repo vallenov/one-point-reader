@@ -265,8 +265,6 @@ class MainWindow(tk.Tk):
         self._show_widget_flag = not self._show_widget_flag
 
     def _down_text(self):
-        print(self.book.last_point)
-        print(len(self._fill_text_place(self.book.last_point, self.book.text, down=True).split()))
         self.book.last_point += len(self._fill_text_place(self.book.last_point, self.book.text, down=True).split())
         self.book.last_point = len(self.book.text) \
             if self.book.last_point > len(self.book.text) \
@@ -320,16 +318,13 @@ class MainWindow(tk.Tk):
                 self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
             self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
         while getattr(self.reading_task, "run", True):
-            try:
-                self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
-                if self.book.last_point >= len(self.book.text):
-                    return
-                self._ent.delete(0, 'end')
-                self._ent.insert(tk.INSERT, self.book.text[self.book.last_point].center(60))
-                self.book.last_point += 1
-                time.sleep(0.05 + ((100 - self._speed) / 150))
-            except RuntimeError:
-                pass
+            self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
+            if self.book.last_point >= len(self.book.text):
+                return
+            self._ent.delete(0, 'end')
+            self._ent.insert(tk.INSERT, self.book.text[self.book.last_point].center(60))
+            self.book.last_point += 1
+            time.sleep(0.05 + ((100 - self._speed) / 150))
 
     def _pause(self):
         if not self._check_book() or not self.book.ready_to_read:
