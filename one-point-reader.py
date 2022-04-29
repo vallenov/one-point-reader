@@ -8,12 +8,14 @@ import tkinter.messagebox as mb
 import docx
 import fitz
 from bs4 import BeautifulSoup
+import configparser
 
 
 class Book:
 
     def __init__(self, full_name, last_point=0):
         self.full_name = full_name
+        self.name = self.full_name.split('/')[-1]
         self.last_point = last_point
         self.ready_to_read = False
         self.map = {
@@ -86,6 +88,7 @@ class MainWindow(tk.Tk):
         self._WIDTH = 500
         self.title('One-point Reader')  # название окна
         self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
+        self.protocol("WM_DELETE_WINDOW", self._on_closing)
         self._list_of_widgets = []
         self._speed = 50
         self._max_speed = 100
@@ -99,6 +102,19 @@ class MainWindow(tk.Tk):
                            ('PDF', '*.pdf'),
                            ('Все файлы', '*')]
         self._create_widgets()
+        self._config = configparser.ConfigParser()
+        if os.path.exists(os.path.join(os.getcwd(), 'One-point-reader.ini')):
+            self._config.read(os.path.join(os.getcwd(), 'One-point-reader.ini'))
+            if self._config.has_option('LAST_BOOK', 'name'):
+                self.book = Book(self._config.get('LAST_BOOK', 'name'))
+                self._refresh_entry(self._ent, self.book.name.center(60))
+
+    def _on_closing(self):
+        if not self._config.has_section('BOOKS_LAST_POINTS'):
+            self._config.add_section('BOOKS_LAST_POINTS')
+        self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
+        self._ini_save()
+        self.destroy()
 
     def _create_widgets(self):
         """
@@ -115,8 +131,7 @@ class MainWindow(tk.Tk):
         self._list_of_widgets.append(self._open_file_btn)
         col += 2
         self._rej_btn = tk.Button(self, text='Режим чтения', command=self._change_widgets)
-        # self._rej_btn.grid(row=row, column=col)
-        # self._list_of_widgets.append(self._rej_btn)
+
         row += 1
         col = 1
         self._ent = tk.Entry(self, width=40)
@@ -161,6 +176,13 @@ class MainWindow(tk.Tk):
         self.cur_row = row
 
         self._show_widget_flag = not self._show_widget_flag
+
+    def _ini_save(self):
+        '''
+        Сохранение изменений в іnі-файл
+        '''
+        with open(os.path.join(os.getcwd(), 'One-point-reader.ini'), 'w') as f:
+            self._config.write(f)
 
     def _add_scale(self):
         """
@@ -289,6 +311,9 @@ class MainWindow(tk.Tk):
             self._reading_process = True
         if not self._check_book(True) or not self.book.ready_to_read:
             return
+        if self._config.has_section('BOOKS_LAST_POINTS') and \
+                self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
+            self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
             if self.book.last_point >= len(self.book.text):
@@ -374,6 +399,10 @@ class MainWindow(tk.Tk):
             self._add_scale()
             self._rej_btn.grid(row=1, column=8)
             self.geometry(f'600x120')
+            if not self._config.has_section('LAST_BOOK'):
+                self._config.add_section('LAST_BOOK')
+            self._config.set('LAST_BOOK', 'NAME', self.book.full_name)
+            self._ini_save()
 
 
 if __name__ == '__main__':
