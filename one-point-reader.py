@@ -112,6 +112,9 @@ class MainWindow(tk.Tk):
                 self._WIDTH += 100
                 self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
                 self._add_scale()
+                if self._config.has_section('BOOKS_LAST_POINTS') and \
+                        self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
+                    self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
 
     def _on_closing(self):
         if not self._config.has_section('BOOKS_LAST_POINTS'):
@@ -311,9 +314,6 @@ class MainWindow(tk.Tk):
             self._reading_process = True
         if not self._check_book(True) or not self.book.ready_to_read:
             return
-        if self._config.has_section('BOOKS_LAST_POINTS') and \
-                self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
-            self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
             if self.book.last_point >= len(self.book.text):
