@@ -108,12 +108,17 @@ class MainWindow(tk.Tk):
             if self._config.has_option('LAST_BOOK', 'name'):
                 self.book = Book(self._config.get('LAST_BOOK', 'name'))
                 self._refresh_entry(self._ent, self.book.name.center(60))
+                self._rej_btn.grid(row=1, column=8)
+                self._WIDTH += 100
+                self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
+                self._add_scale()
 
     def _on_closing(self):
         if not self._config.has_section('BOOKS_LAST_POINTS'):
             self._config.add_section('BOOKS_LAST_POINTS')
         self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
         self._ini_save()
+        self.reading_task.run = False
         self.destroy()
 
     def _create_widgets(self):
