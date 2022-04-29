@@ -118,7 +118,8 @@ class MainWindow(tk.Tk):
             self._config.add_section('BOOKS_LAST_POINTS')
         self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
         self._ini_save()
-        self.reading_task.run = False
+        if hasattr(self, 'reading_task') and hasattr(self.reading_task, 'run'):
+            self.reading_task.run = False
         self.destroy()
 
     def _create_widgets(self):
@@ -214,7 +215,7 @@ class MainWindow(tk.Tk):
         buf = 0
         while True:
             if down:
-                if buf + len(book_text[start]) > 57 * 20 or start >= len(book_text):
+                if buf + len(book_text[start]) > 56 * 19 or start >= len(book_text):
                     break
                 buf += len(book_text[start])
                 tmp.append(book_text[start])
@@ -292,15 +293,11 @@ class MainWindow(tk.Tk):
         """
         Book exist check
         """
-        try:
-            getattr(self, 'book')
-        except AttributeError:
+        if not hasattr(self, 'book'):
             if show_error:
                 mb.showerror('Ошибка!', 'Не выбрана книга')
             return False
-        try:
-            getattr(self, 'reading_task')
-        except AttributeError:
+        if not hasattr(self, 'reading_task'):
             return False
         return True
 
