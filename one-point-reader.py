@@ -246,6 +246,7 @@ class MainWindow(tk.Tk):
             else [widget.grid_remove() for widget in self._list_of_widgets]
         if not self._show_widget_flag:
             self._pause()
+            self._WIDTH = 600
             self.geometry('600x400')
             self._txt = tk.Text(self, width=57, height=23)
             self._txt.grid(row=1, column=1, rowspan=99)
@@ -256,7 +257,7 @@ class MainWindow(tk.Tk):
             self._down_btn = tk.Button(self, text='⇓', command=self._down_text)
             self._down_btn.grid(row=34, column=8)
         else:
-            self.geometry(f'{self._WIDTH + 100}x{self._HEIGHT + 20}')
+            self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
             self._txt.grid_remove()
             self._up_btn.grid_remove()
             self._down_btn.grid_remove()
