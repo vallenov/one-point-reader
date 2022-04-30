@@ -213,33 +213,26 @@ class MainWindow(tk.Tk):
             self._list_of_widgets.append(self._scale)
         self._exist_scale = True
 
-    @staticmethod
-    def _fill_text_place(start: int, book_text: list, down: bool) -> str:
-        tmp = []
-        buf = 0
+    def _fill_text_place(self, start: int, down: bool) -> str and int:
+        fin = start
         while True:
             if down:
-                if buf + len(book_text[start]) > 56 * 19 or start >= len(book_text):
+                if len(' '.join(self.book.text[start:fin])) > 56 * 23 or fin >= len(self.book.text):
                     break
-                buf += len(book_text[start])
-                tmp.append(book_text[start])
-                start += 1
+                fin += 1
             else:
-                if buf + len(book_text[start]) > 57 * 20 or start <= 0:
-                    tmp = tmp[::-1]
+                if len(' '.join(self.book.text[start:fin])) > 56 * 23 or start <= 0:
                     down = True
                     continue
-                buf += len(book_text[start])
-                tmp.append(book_text[start])
                 start -= 1
-        return ' '.join(tmp)
+        return self.book.text[start:fin]
 
     def _callback(self, event):
         index = event.widget.index("@%s,%s" % (event.x, event.y))
         simbol_pos = int(index.split('.')[1])
         cnt = 0
         buf = 0
-        for word in self._fill_text_place(self.book.last_point, self.book.text, down=True).split():
+        for word in self._fill_text_place(self.book.last_point, down=True):
             if buf + len(word) >= simbol_pos:
                 break
             cnt += 1
@@ -256,7 +249,7 @@ class MainWindow(tk.Tk):
             self.geometry('600x400')
             self._txt = tk.Text(self, width=57, height=23)
             self._txt.grid(row=1, column=1, rowspan=99)
-            self._txt.insert('1.0', self._fill_text_place(self.book.last_point, self.book.text, down=True))
+            self._txt.insert('1.0', ' '.join(self._fill_text_place(self.book.last_point, down=True)))
             self._txt.bind("<Button-1>", self._callback)
             self._up_btn = tk.Button(self, text='⇑', command=self._up_text)
             self._up_btn.grid(row=33, column=8)
@@ -270,20 +263,20 @@ class MainWindow(tk.Tk):
         self._show_widget_flag = not self._show_widget_flag
 
     def _down_text(self):
-        self.book.last_point += len(self._fill_text_place(self.book.last_point, self.book.text, down=True).split())
+        self.book.last_point += len(self._fill_text_place(self.book.last_point, down=True))
         self.book.last_point = len(self.book.text) \
             if self.book.last_point > len(self.book.text) \
             else self.book.last_point
         self._txt.delete('0.0', 'end')
-        self._txt.insert('0.0', self._fill_text_place(self.book.last_point, self.book.text, down=True))
+        self._txt.insert('0.0', ' '.join(self._fill_text_place(self.book.last_point, down=True)))
 
     def _up_text(self):
-        self.book.last_point -= len(self._fill_text_place(self.book.last_point, self.book.text, down=False).split())
+        self._txt.delete('0.0', 'end')
+        self._txt.insert('0.0', ' '.join(self._fill_text_place(self.book.last_point, down=False)))
+        self.book.last_point -= len(self._fill_text_place(self.book.last_point, down=False))
         self.book.last_point = 0 \
             if self.book.last_point < 0 \
             else self.book.last_point
-        self._txt.delete('0.0', 'end')
-        self._txt.insert('0.0', self._fill_text_place(self.book.last_point, self.book.text, down=False))
 
     def _set_scale(self, val):
         """
