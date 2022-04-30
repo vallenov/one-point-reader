@@ -106,6 +106,11 @@ class MainWindow(tk.Tk):
         self._config = configparser.ConfigParser()
         if os.path.exists(os.path.join(os.getcwd(), 'One-point-reader.ini')):
             self._config.read(os.path.join(os.getcwd(), 'One-point-reader.ini'))
+            if not self._config.has_section('LAST_BOOK'):
+                self._config.add_section('LAST_BOOK')
+            if not self._config.has_section('BOOKS_LAST_POINTS'):
+                self._config.add_section('BOOKS_LAST_POINTS')
+            self._ini_save()
             if self._config.has_option('LAST_BOOK', 'name'):
                 self.book = Book(self._config.get('LAST_BOOK', 'name'))
                 self._refresh_entry(self._ent, self.book.name.center(60))
@@ -113,15 +118,12 @@ class MainWindow(tk.Tk):
                 self._WIDTH += 100
                 self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
                 self._add_scale()
-                if self._config.has_section('BOOKS_LAST_POINTS') and \
-                        self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
+                if self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
                     self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
                     self._scale.set(self.book.last_point)
 
     def _on_closing(self):
         if hasattr(self, 'book'):
-            if not self._config.has_section('BOOKS_LAST_POINTS'):
-                self._config.add_section('BOOKS_LAST_POINTS')
             self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
             self._ini_save()
             if hasattr(self, 'reading_task') and hasattr(self.reading_task, 'run'):
@@ -322,6 +324,8 @@ class MainWindow(tk.Tk):
             self._reading_process = True
         if not self._check_book(True) or not self.book.ready_to_read:
             return
+        self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
+        self._ini_save()
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
             if self.book.last_point >= self.book.len:
@@ -334,12 +338,16 @@ class MainWindow(tk.Tk):
     def _pause(self):
         if not self._check_book() or not self.book.ready_to_read:
             return
+        self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
+        self._ini_save()
         self.reading_task.run = False
         self._reading_process = False
 
     def _stop(self):
         if not self._check_book() or not self.book.ready_to_read:
             return
+        self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
+        self._ini_save()
         self.reading_task.run = False
         self._reading_process = False
         self.book.last_point = 0
@@ -407,10 +415,11 @@ class MainWindow(tk.Tk):
             self._add_scale()
             self._rej_btn.grid(row=1, column=8)
             self.geometry(f'600x120')
-            if not self._config.has_section('LAST_BOOK'):
-                self._config.add_section('LAST_BOOK')
-            self._config.set('LAST_BOOK', 'NAME', self.book.full_name)
+            self._config.set('LAST_BOOK', 'name', self.book.full_name)
             self._ini_save()
+            if self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
+                self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
+                self._scale.set(self.book.last_point)
 
 
 if __name__ == '__main__':
