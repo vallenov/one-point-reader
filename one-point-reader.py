@@ -29,6 +29,7 @@ class Book:
             func = self.map.get(extension, None)
             if func:
                 self.text = func()
+                self.len = len(self.text)
                 self.ready_to_read = True
             else:
                 mb.showerror('Ошибка!', 'Неподдерживаемый формат файла')
@@ -115,6 +116,7 @@ class MainWindow(tk.Tk):
                 if self._config.has_section('BOOKS_LAST_POINTS') and \
                         self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
                     self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
+                    self._scale.set(self.book.last_point)
 
     def _on_closing(self):
         if hasattr(self, 'book'):
@@ -208,16 +210,21 @@ class MainWindow(tk.Tk):
             self._lbl = tk.Label(self, textvariable=self._var)
             self._lbl.grid(row=self.cur_row, column=1)
 
-            self._scale = ttk.Scale(self, from_=0, to=len(self.book.text), command=self._set_scale)
+            self._scale = ttk.Scale(self, from_=self.book.last_point, to=self.book.len, command=self._set_scale)
             self._scale.grid(row=self.cur_row, column=2, columnspan=5, sticky='NSEW')
             self._list_of_widgets.append(self._scale)
         self._exist_scale = True
 
     def _fill_text_place(self, start: int, down: bool) -> str and int:
+        """
+        Get newt or prev page
+        :param start: start position
+        :param down: direction (up or down)
+        """
         fin = start
         while True:
             if down:
-                if len(' '.join(self.book.text[start:fin])) > 56 * 23 or fin >= len(self.book.text):
+                if len(' '.join(self.book.text[start:fin])) > 56 * 23 or fin >= self.book.len:
                     break
                 fin += 1
             else:
@@ -264,14 +271,20 @@ class MainWindow(tk.Tk):
         self._show_widget_flag = not self._show_widget_flag
 
     def _down_text(self):
+        """
+        Load next page
+        """
         self.book.last_point += len(self._fill_text_place(self.book.last_point, down=True))
-        self.book.last_point = len(self.book.text) \
-            if self.book.last_point > len(self.book.text) \
+        self.book.last_point = self.book.len \
+            if self.book.last_point > self.book.len \
             else self.book.last_point
         self._txt.delete('0.0', 'end')
         self._txt.insert('0.0', ' '.join(self._fill_text_place(self.book.last_point, down=True)))
 
     def _up_text(self):
+        """
+        Load prev page
+        """
         self._txt.delete('0.0', 'end')
         self._txt.insert('0.0', ' '.join(self._fill_text_place(self.book.last_point, down=False)))
         self.book.last_point -= len(self._fill_text_place(self.book.last_point, down=False))
@@ -283,7 +296,7 @@ class MainWindow(tk.Tk):
         """
         Set value of Scale
         """
-        v = int(float(val) / (len(self.book.text) / 100))
+        v = int(float(val) / (self.book.len / 100))
         self.book.last_point = int(float(val)) - 1
         self._var.set(v)
 
@@ -311,7 +324,7 @@ class MainWindow(tk.Tk):
             return
         while getattr(self.reading_task, "run", True):
             self.book.last_point = 0 if self.book.last_point < 0 else self.book.last_point
-            if self.book.last_point >= len(self.book.text):
+            if self.book.last_point >= self.book.len:
                 return
             self._ent.delete(0, 'end')
             self._ent.insert(tk.INSERT, self.book.text[self.book.last_point].center(60))
