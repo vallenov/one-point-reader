@@ -117,12 +117,13 @@ class MainWindow(tk.Tk):
                     self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
 
     def _on_closing(self):
-        if not self._config.has_section('BOOKS_LAST_POINTS'):
-            self._config.add_section('BOOKS_LAST_POINTS')
-        self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
-        self._ini_save()
-        if hasattr(self, 'reading_task') and hasattr(self.reading_task, 'run'):
-            self.reading_task.run = False
+        if hasattr(self, 'book'):
+            if not self._config.has_section('BOOKS_LAST_POINTS'):
+                self._config.add_section('BOOKS_LAST_POINTS')
+            self._config.set('BOOKS_LAST_POINTS', self.book.name, str(self.book.last_point))
+            self._ini_save()
+            if hasattr(self, 'reading_task') and hasattr(self.reading_task, 'run'):
+                self.reading_task.run = False
         self.destroy()
 
     def _create_widgets(self):
