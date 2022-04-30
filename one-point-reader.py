@@ -192,9 +192,9 @@ class MainWindow(tk.Tk):
         self._show_widget_flag = not self._show_widget_flag
 
     def _ini_save(self):
-        '''
+        """
         Сохранение изменений в іnі-файл
-        '''
+        """
         with open(os.path.join(os.getcwd(), 'One-point-reader.ini'), 'w') as f:
             self._config.write(f)
 
