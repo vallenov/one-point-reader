@@ -202,9 +202,7 @@ class MainWindow(tk.Tk):
         """
         Create reading progress bar
         """
-        self._HEIGHT += 20
-        self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
-        self._HEIGHT -= 20
+        self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
         self.cur_row += 1
 
         self._var = tk.IntVar()
