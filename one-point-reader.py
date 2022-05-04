@@ -114,7 +114,7 @@ class MainWindow(tk.Tk):
             if self._config.has_option('LAST_BOOK', 'name'):
                 self.book = Book(self._config.get('LAST_BOOK', 'name'))
                 self._refresh_entry(self._ent, self.book.name.center(60))
-                self._rej_btn.grid(row=1, column=8)
+                self._regimes_btn.grid(row=1, column=8)
                 self._WIDTH += 100
                 self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
                 self._add_scale()
@@ -144,7 +144,7 @@ class MainWindow(tk.Tk):
         self._open_file_btn.grid(row=row, column=col, columnspan=2)
         self._list_of_widgets.append(self._open_file_btn)
         col += 2
-        self._rej_btn = tk.Button(self, text='Режим чтения', command=self._change_widgets)
+        self._regimes_btn = tk.Button(self, text='Режим чтения', command=self._change_widgets)
 
         row += 1
         col = 1
@@ -202,9 +202,7 @@ class MainWindow(tk.Tk):
         """
         Create reading progress bar
         """
-        self._HEIGHT += 20
-        self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
-        self._HEIGHT -= 20
+        self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
         self.cur_row += 1
 
         self._var = tk.IntVar()
@@ -237,6 +235,9 @@ class MainWindow(tk.Tk):
         return self.book.text[start:fin]
 
     def _callback(self, event):
+        """
+        Get word was clicked
+        """
         index = event.widget.index("@%s,%s" % (event.x, event.y))
         simbol_pos = int(index.split('.')[1])
         cnt = 0
@@ -251,6 +252,9 @@ class MainWindow(tk.Tk):
         self._refresh_entry(self._ent, self.book.text[self.book.last_point].center(60))
 
     def _change_widgets(self):
+        """
+        Change reading regimes
+        """
         [widget.grid() for widget in self._list_of_widgets] if self._show_widget_flag \
             else [widget.grid_remove() for widget in self._list_of_widgets]
         if not self._show_widget_flag:
@@ -413,7 +417,7 @@ class MainWindow(tk.Tk):
             file_name = file.split('/')[-1]
             self._refresh_entry(self._ent, file_name.center(60))
             self._add_scale()
-            self._rej_btn.grid(row=1, column=8)
+            self._regimes_btn.grid(row=1, column=8)
             self.geometry(f'600x120')
             self._config.set('LAST_BOOK', 'name', self.book.full_name)
             self._ini_save()
