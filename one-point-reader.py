@@ -117,10 +117,10 @@ class MainWindow(tk.Tk):
                 self._regimes_btn.grid(row=1, column=8)
                 self._WIDTH += 100
                 self.geometry(f'{self._WIDTH}x{self._HEIGHT}')
-                self._add_scale()
                 if self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
                     self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
-                    self._scale.set(self.book.last_point)
+                    self._add_scale()
+                    self._load_scale(self.book.last_point)
 
     def _on_closing(self):
         if hasattr(self, 'book'):
@@ -202,18 +202,23 @@ class MainWindow(tk.Tk):
         """
         Create reading progress bar
         """
-        self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
-        self.cur_row += 1
-
-        self._var = tk.IntVar()
-        if not self._exist_scale:
+        if self._exist_scale:
+            self._list_of_widgets.pop(self._list_of_widgets.index(self._scale))
+            self._scale.destroy()
+            self._list_of_widgets.pop(self._list_of_widgets.index(self._lbl))
+            self._lbl.destroy()
+            self._exist_scale = False
+        else:
+            self.geometry(f'{self._WIDTH}x{self._HEIGHT + 20}')
+            self._var = tk.IntVar()
+            self.cur_row += 1
             self._lbl = tk.Label(self, textvariable=self._var)
             self._lbl.grid(row=self.cur_row, column=1)
-
-            self._scale = ttk.Scale(self, from_=self.book.last_point, to=self.book.len, command=self._set_scale)
+            self._list_of_widgets.append(self._lbl)
+            self._scale = ttk.Scale(self, from_=0, to=self.book.len, command=self._set_scale)
             self._scale.grid(row=self.cur_row, column=2, columnspan=5, sticky='NSEW')
             self._list_of_widgets.append(self._scale)
-        self._exist_scale = True
+            self._exist_scale = True
 
     def _fill_text_place(self, start: int, down: bool) -> str and int:
         """
@@ -297,6 +302,15 @@ class MainWindow(tk.Tk):
         self.book.last_point = 0 \
             if self.book.last_point < 0 \
             else self.book.last_point
+
+    def _load_scale(self, val):
+        """
+        Load value of Scale
+        """
+        v = int(float(val) / (self.book.len / 100))
+        self.book.last_point = int(float(val)) - 1
+        self._var.set(v)
+        self._scale.set(val)
 
     def _set_scale(self, val):
         """
@@ -409,6 +423,7 @@ class MainWindow(tk.Tk):
         """
         Show file system
         """
+        self._pause()
         file = self._open_file_dlg = tk.filedialog.askopenfilename(parent=self, filetypes=self.file_types)
         if file:
             self.book = Book(file)
@@ -423,7 +438,8 @@ class MainWindow(tk.Tk):
             self._ini_save()
             if self._config.has_option('BOOKS_LAST_POINTS', self.book.name):
                 self.book.last_point = int(self._config.get('BOOKS_LAST_POINTS', self.book.name))
-                self._scale.set(self.book.last_point)
+            self._add_scale()
+            self._load_scale(self.book.last_point)
 
 
 if __name__ == '__main__':
