@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import ImageTk, Image
 from tkinter import ttk
 import time
 import threading
@@ -163,7 +164,9 @@ class MainWindow(tk.Tk):
         self._prev_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._prev_btn)
         col += 1
-        self._play_btn = tk.Button(self, text='▶', command=self._start)
+        play_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'play.png'))
+        self._play_btn = tk.Button(self, text='▶', command=self._start, image=play_photo)
+        self._play_btn.image = play_photo
         self._play_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._play_btn)
         col += 1
@@ -171,7 +174,9 @@ class MainWindow(tk.Tk):
         self._pause_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._pause_btn)
         col += 1
-        self._stop_btn = tk.Button(self, text='☐', command=self._stop)
+        stop_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'stop.png'))
+        self._stop_btn = tk.Button(self, text='☐', command=self._stop, image=stop_photo)
+        self._stop_btn.image = stop_photo
         self._stop_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._stop_btn)
         col += 1
@@ -190,6 +195,12 @@ class MainWindow(tk.Tk):
         self.cur_row = row
 
         self._show_widget_flag = not self._show_widget_flag
+
+    @staticmethod
+    def _resize_img(path):
+        p = Image.open(path)
+        p = p.resize((25, 25), Image.ANTIALIAS)
+        p.save(path)
 
     def _ini_save(self):
         """
