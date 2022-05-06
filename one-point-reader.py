@@ -170,7 +170,10 @@ class MainWindow(tk.Tk):
         self._play_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._play_btn)
         col += 1
-        self._pause_btn = tk.Button(self, text='||', command=self._pause)
+        self._resize_img('static/image/pause.png')
+        pause_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'pause.png'))
+        self._pause_btn = tk.Button(self, text='||', command=self._pause, image=pause_photo)
+        self._pause_btn.image = pause_photo
         self._pause_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._pause_btn)
         col += 1
