@@ -160,7 +160,9 @@ class MainWindow(tk.Tk):
 
         row += 1
         col = 1
-        self._prev_btn = tk.Button(self, text='<-', command=self._jump_left)
+        prev_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'prev.png'))
+        self._prev_btn = tk.Button(self, text='<-', command=self._jump_left, image=prev_photo)
+        self._prev_btn.image = prev_photo
         self._prev_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._prev_btn)
         col += 1
@@ -170,7 +172,6 @@ class MainWindow(tk.Tk):
         self._play_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._play_btn)
         col += 1
-        self._resize_img('static/image/pause.png')
         pause_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'pause.png'))
         self._pause_btn = tk.Button(self, text='||', command=self._pause, image=pause_photo)
         self._pause_btn.image = pause_photo
