@@ -184,7 +184,9 @@ class MainWindow(tk.Tk):
         self._stop_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._stop_btn)
         col += 1
-        self._next_btn = tk.Button(self, text='->', command=self._jump_right)
+        next_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'next.png'))
+        self._next_btn = tk.Button(self, text='->', command=self._jump_right, image=next_photo)
+        self._next_btn.image = next_photo
         self._next_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._next_btn)
         col += 1
