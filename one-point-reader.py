@@ -190,7 +190,9 @@ class MainWindow(tk.Tk):
         self._next_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._next_btn)
         col += 1
-        self._speed_up_btn = tk.Button(self, text='+', command=self._speed_up)
+        plus_photo = ImageTk.PhotoImage(file=os.path.join('static', 'image', 'plus.png'))
+        self._speed_up_btn = tk.Button(self, text='+', command=self._speed_up, image=plus_photo)
+        self._speed_up_btn.image = plus_photo
         self._speed_up_btn.grid(row=row, column=col)
         self._list_of_widgets.append(self._speed_up_btn)
         col += 1
